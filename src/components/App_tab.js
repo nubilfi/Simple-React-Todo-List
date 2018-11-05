@@ -6,7 +6,12 @@ import AppBar from '@material-ui/core/AppBar';
 import Tabs from '@material-ui/core/Tabs';
 import Tab from '@material-ui/core/Tab';
 import Typography from '@material-ui/core/Typography';
+import { connect } from 'react-redux';
+import { compose } from 'redux';
 import AppTodoList from './App_todo_list';
+import {
+	showPending, showComplete, showAll, markTodo
+} from '../actions/todoActions';
 
 function TabContainer({ children, dir }) {
 	return (
@@ -27,109 +32,79 @@ const styles = theme => ({
 	}
 });
 
-class App_tab extends React.Component {
+class AppTab extends React.Component {
 	state = {
-		value: 0,
-		text: '',
-		todos: []
+		value: 0
 	};
 
-	handleChange = (event, value) => {
-		this.setState({ value });
+	handleTabsChange = (event, value) => {
+		if (value === 1) {
+			this.props.showPending();
+			this.setState({ value });
+		} else if (value === 2) {
+			this.props.showComplete();
+			this.setState({ value });
+		} else {
+			this.props.showAll();
+			this.setState({ value });
+		}
 	};
 
-	handleChangeIndex = index => {
+	handleChangeIndex = (index) => {
 		this.setState({ value: index });
 	};
 
 	handleToggle = value => () => {
-		const { todos } = this.state;
-		const currentIndex = todos.indexOf(value);
-
-		todos[currentIndex].completed = !todos[currentIndex].completed;
-		todos[currentIndex].date = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' });
-
-		this.setState({ todos });
-	};
-
-	handleInputChange = e => {
-		this.setState({ text: e.target.value });
-	};
-
-	handleSubmit = () => {
-		let key;
-		for (let i = 0; i <= this.state.todos.length; i++) {
-			key = i;
-		}
-
-		let stateCopy = Object.assign({}, this.state);
-		stateCopy.todos = stateCopy.todos.slice();
-		stateCopy.todos[key] = Object.assign({}, stateCopy.todos[key]);
-		stateCopy.todos[key].id = key;
-		stateCopy.todos[key].text = this.state.text;
-		stateCopy.todos[key].completed = false;
-		stateCopy.todos[key].date = new Date().toLocaleTimeString('en-US', { hour: 'numeric', minute: 'numeric' });
-		this.setState(stateCopy);
-		this.props.onHandleFloatButton();
+		this.props.markTodo(value);
 	};
 
 	componentWillReceiveProps(nextProps) {
-		if (this.props.onShowInput !== nextProps.onShowInput) {
-			this.setState(prevState => {
-				return { value: prevState.value * 0 };
-			});
+		if (this.props.isShow !== nextProps.isShow) {
+			this.setState(prevState => ({ value: prevState.value * 0 }));
 		}
 	}
 
 	render() {
-		const { classes, theme, onShowInput, onHandleFloatButton } = this.props;
-		let pending = [...this.state.todos.filter(e => e.completed === false)];
-		let complete = [...this.state.todos.filter(e => e.completed === true)];
+		const { classes, theme } = this.props;
 
 		return (
 			<div className={classes.root}>
 				<AppBar position="static" color="inherit">
-					<Tabs value={this.state.value} onChange={this.handleChange} indicatorColor="primary" textColor="primary" centered>
+					<Tabs
+						value={this.state.value}
+						onChange={this.handleTabsChange}
+						indicatorColor="primary"
+						textColor="primary"
+						centered
+					>
 						<Tab label="All" />
 						<Tab label="Pending" />
 						<Tab label="Done" />
 					</Tabs>
 				</AppBar>
-				<SwipeableViews axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'} index={this.state.value} onChangeIndex={this.handleChangeIndex}>
+				<SwipeableViews
+					axis={theme.direction === 'rtl' ? 'x-reverse' : 'x'}
+					index={this.state.value}
+					onChangeIndex={this.handleChangeIndex}
+				>
 					<TabContainer dir={theme.direction}>
-						<AppTodoList
-							todos={this.state.todos}
-							onShowInput={onShowInput}
-							tabIndex={this.state.value}
-							onHandleFloatButton={onHandleFloatButton}
-							onHandleToggle={this.handleToggle}
-							onHandleInputChange={this.handleInputChange}
-							onHandleSubmit={this.handleSubmit}
-						/>
+						<AppTodoList tabIndex={this.state.value} onHandleToggle={this.handleToggle} />
 					</TabContainer>
+
 					<TabContainer dir={theme.direction}>
 						{this.state.value === 1 && (
 							<AppTodoList
-								todos={pending}
-								onShowInput={onShowInput}
 								tabIndex={this.state.value}
-								onHandleFloatButton={onHandleFloatButton}
 								onHandleToggle={this.handleToggle}
-								onHandleInputChange={this.handleInputChange}
-								onHandleSubmit={this.handleSubmit}
 							/>
 						)}
 					</TabContainer>
+
 					<TabContainer dir={theme.direction}>
 						{this.state.value === 2 && (
 							<AppTodoList
-								todos={complete}
-								onShowInput={onShowInput}
 								tabIndex={this.state.value}
-								onHandleFloatButton={onHandleFloatButton}
 								onHandleToggle={this.handleToggle}
-								onHandleInputChange={this.handleInputChange}
-								onHandleSubmit={this.handleSubmit}
 							/>
 						)}
 					</TabContainer>
@@ -139,9 +114,33 @@ class App_tab extends React.Component {
 	}
 }
 
-App_tab.propTypes = {
+AppTab.propTypes = {
 	classes: PropTypes.object.isRequired,
-	theme: PropTypes.object.isRequired
+	theme: PropTypes.object.isRequired,
+	isShow: PropTypes.bool,
+	showAll: PropTypes.func.isRequired,
+	markTodo: PropTypes.func.isRequired,
+	showPending: PropTypes.func.isRequired,
+	showComplete: PropTypes.func.isRequired,
+	todos: PropTypes.arrayOf(
+		PropTypes.shape({
+			id: PropTypes.number.isRequired,
+			text: PropTypes.string.isRequired,
+			date: PropTypes.string.isRequired,
+			completed: PropTypes.bool.isRequired
+		}).isRequired
+	)
 };
 
-export default withStyles(styles, { withTheme: true })(App_tab);
+export default compose(
+	connect(
+		null,
+		{
+			showPending,
+			showComplete,
+			showAll,
+			markTodo
+		}
+	),
+	withStyles(styles, { withTheme: true })
+)(AppTab);

@@ -6,51 +6,72 @@ import Toolbar from '@material-ui/core/Toolbar';
 import Typography from '@material-ui/core/Typography';
 
 const styles = {
-  root: {
-    flexGrow: 1,
-  },
-  flex: {
-    flexGrow: 1,
-    paddingTop: 10,
-  },
-  navDate: {
-    marginLeft: -4,
-    fontSize: 30,
-    paddingRight: 5
-  },
+	root: {
+		flexGrow: 1
+	},
+	flex: {
+		flexGrow: 1,
+		paddingTop: 10
+	},
+	navDate: {
+		marginLeft: -4,
+		fontSize: 30,
+		paddingRight: 5
+	}
 };
 
-const App_bar = ({ classes }) => {
-  const date = new Date();
-  const months = ["January", "February", "March", "April", "May", "June", "July", "August", "September", "October", "November", "December"];
-  const days = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-  
-  return (
-    <div className={classes.root}>
-      <AppBar position="static">
-        <Toolbar>
-          <span color="inherit" className={classes.navDate}>
-            {date.getDate()}
-          </span>
+const Appbar = ({ classes }) => {
+	const date = new Date();
+	const months = [
+		'January',
+		'February',
+		'March',
+		'April',
+		'May',
+		'June',
+		'July',
+		'August',
+		'September',
+		'October',
+		'November',
+		'December'
+	];
+	const days = [
+		'Sunday',
+		'Monday',
+		'Tuesday',
+		'Wednesday',
+		'Thursday',
+		'Friday',
+		'Saturday'
+	];
 
-          <Typography variant="title" color="inherit" className={classes.flex}>
-            {months[date.getMonth()]}
-            <Typography color="inherit" gutterBottom noWrap>
-              {date.getFullYear()}
-            </Typography>
-          </Typography>
+	return (
+		<div className={classes.root}>
+			<AppBar position="static">
+				<Toolbar>
+					<span color="inherit" className={classes.navDate}>
+						{date.getDate()}
+					</span>
 
-          <Typography variant="title" color="inherit" >
-            {days[date.getDay()]}
-          </Typography>
-        </Toolbar>
-      </AppBar>
-    </div>
-  );
-}
+					<Typography variant="title" color="inherit" className={classes.flex}>
+						{months[date.getMonth()]}
+						<Typography color="inherit" gutterBottom noWrap>
+							{date.getFullYear()}
+						</Typography>
+					</Typography>
 
-App_bar.propTypes = {
-  classes: PropTypes.object.isRequired,
+					<Typography variant="title" color="inherit">
+						{days[date.getDay()]}
+					</Typography>
+				</Toolbar>
+			</AppBar>
+		</div>
+	);
 };
 
-export default withStyles(styles)(App_bar);
+Appbar.propTypes = {
+	classes: PropTypes.object.isRequired
+};
+
+export default withStyles(styles)(Appbar);

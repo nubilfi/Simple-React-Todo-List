@@ -6,37 +6,17 @@ import AppTab from './components/App_tab';
 import AppFloatButton from './components/App_float_button';
 
 const theme = createMuiTheme({
-  palette: {
-    primary: teal,
-  },
+	palette: {
+		primary: teal
+	}
 });
 
-class App extends React.Component {
-  state = {
-    showInput: false,
-  }
-
-  handleFloatButton = () => {
-    this.setState(prevState => ({
-      showInput: !prevState.showInput
-    }));
-  }
-
-  render() {
-    const { showInput } = this.state;
-    return (
-      <MuiThemeProvider theme={theme}>
-        <AppBar />
-        <AppTab 
-          onShowInput={showInput}
-          onHandleFloatButton={this.handleFloatButton}/>
-        <AppFloatButton 
-          onShowInput={showInput}
-          onHandleFloatButton={this.handleFloatButton}/>
-      </MuiThemeProvider>
-    )
-  }
-}
-
+const App = () => (
+	<MuiThemeProvider theme={theme}>
+		<AppBar />
+		<AppTab />
+		<AppFloatButton />
+	</MuiThemeProvider>
+);
 
 export default App;
